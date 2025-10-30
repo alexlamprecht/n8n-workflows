@@ -1,0 +1,180 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-08T07:16:31.785Z",
+  "id": "A3t9ybJSXDiplNDn",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8be04892-ac5e-499a-be14-aa7157d7cd74",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "18050792-20ee-4509-bfcc-c30610a9afd3",
+      "name": "When chat message received",
+      "webhookId": "098395e4-3d03-4589-a9db-f399f04b2db5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "1c227ba0-67fe-4201-b17e-fce897432526",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        208
+      ],
+      "id": "ce2bd8ec-699d-47fd-ad31-30affe19514e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "A9mk8XXdg1omQECb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        208
+      ],
+      "id": "ff8a0aab-6091-4fb9-8233-85c178b93bfc",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "resource": "workflow",
+        "operation": "list",
+        "owner": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -112
+      ],
+      "id": "08498513-2dec-4ed5-b5cb-9325257af7e9",
+      "name": "List workflows",
+      "webhookId": "2566f48b-128d-4f18-b5db-afe865e6148e",
+      "credentials": {
+        "githubApi": {
+          "id": "U92dWPbje9IyqeAi",
+          "name": "GitHub account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-08T07:16:31.787Z",
+      "createdAt": "2025-10-08T07:16:31.787Z",
+      "role": "workflow:owner",
+      "workflowId": "A3t9ybJSXDiplNDn",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-08T07:16:31.785Z",
+  "versionId": "3c1805d4-8691-4552-ba2b-038757c74494"
+}
