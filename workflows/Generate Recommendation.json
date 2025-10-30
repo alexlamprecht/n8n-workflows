@@ -1,0 +1,204 @@
+{
+  "active": false,
+  "connections": {
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stock price to string2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "stock price to string2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-16T07:34:11.094Z",
+  "id": "YAbsXFXy6odamkwu",
+  "isArchived": false,
+  "meta": null,
+  "name": "Generate Recommendation",
+  "nodes": [
+    {
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        656,
+        416
+      ],
+      "id": "94c6f44f-4d51-44be-8c1b-6c627ed254fb",
+      "name": "OpenAI Chat Model2",
+      "disabled": false,
+      "parameters": {
+        "notice": "",
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "issues": {},
+      "credentials": {
+        "openAiApi": {
+          "id": "A9mk8XXdg1omQECb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        496
+      ],
+      "id": "cbd71c23-2cf3-4303-8d49-3df317f71d3b",
+      "name": "Simple Memory",
+      "disabled": false,
+      "parameters": {
+        "notice": "",
+        "sessionIdType": "customKey",
+        "sessionKey": "stocks",
+        "contextWindowLength": 10
+      },
+      "issues": {}
+    },
+    {
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        96
+      ],
+      "id": "53d79d14-1cec-4345-8b75-ebf7b319f027",
+      "name": "AI Agent",
+      "disabled": false,
+      "parameters": {
+        "aiAgentStarterCallout": "",
+        "preBuiltAgentsCallout": "",
+        "promptType": "define",
+        "text": "=I want to have recommendations on which stocks to buy, if any.  \nI currently have this much cash: {{ $json.cash}}\n\n---------------------------------------------\nHere is combined data for each stock, including my analysis and the latest prices:\n{{ JSON.stringify( $json.merged) }}\n---------------------------------------------\n\nPlease analyze this merged data and recommend which stocks are most likely to generate short-term profit.  \nTake into account: expected change (1d, 1w, 1m), certainty values, and current performance metrics.  \nAssess momentum, price trend, and confidence.  \n\nOutput in a clear, human-readable format:\nFor each recommended stock, give:\n- Stock name and symbol  \n- Suggested amount of cash to allocate in SGD and respective currency of the stock and the amount of shares I can buy with it   \n- A short explanation (1–2 sentences) on why you recommend it  \n\nNo tables, no markdown, no headings — only plain text with line breaks between each recommendation.\n",
+        "hasOutputParser": false,
+        "needsFallback": false,
+        "options": {}
+      },
+      "issues": {}
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const cash = $input.all()[0].json.output.cash;\nconst symbols = JSON.parse($input.all()[1].json.output_symbols);\nconst prices = $input.all()[2].json.stock_prices;\n\nconst priceMap = {};\nfor (const p of prices) {\n  priceMap[p.symbol] = p;\n}\n\nconst merged = symbols.map(symbol => {\n  const p = priceMap[symbol] || {};\n  return {\n    symbol,\n    current: p.current ?? null,\n    change: p.change ?? null,\n    percent_change: p.percent_change ?? null,\n    high: p.high ?? null,\n    low: p.low ?? null,\n    open: p.open ?? null,\n    previous_close: p.previous_close ?? null,\n    timestamp: p.timestamp ?? null\n  };\n});\n\nreturn [\n  {\n    json: {\n      cash,\n      merged\n    }\n  }\n];\n",
+        "notice": ""
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        96
+      ],
+      "id": "7684475d-431f-4369-8562-f4a1d1bb1895",
+      "name": "stock price to string2",
+      "issues": {}
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4e2b4f48-fba3-42ec-8545-7a35c3a92b9d",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        96
+      ],
+      "id": "03d182ff-c46d-4e5c-a872-8f5ec40e06eb",
+      "name": "Return"
+    },
+    {
+      "id": "d296cc49-fef1-4c8b-a2d1-068fdf78fb30",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        224,
+        96
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    }
+  ],
+  "pinData": null,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-16T07:34:11.095Z",
+      "createdAt": "2025-10-16T07:34:11.095Z",
+      "role": "workflow:owner",
+      "workflowId": "YAbsXFXy6odamkwu",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-16T07:34:11.094Z",
+  "versionId": "17688df9-e783-4f8b-a0d6-589d253cc175"
+}
