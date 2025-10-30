@@ -1,0 +1,369 @@
+{
+  "active": false,
+  "connections": {
+    "Get all work items": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "get all work items details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get all work items details": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get all work items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "If recommended",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If recommended": {
+      "main": [
+        [
+          {
+            "node": "Thanks for the review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-22T05:05:55.852Z",
+  "id": "YGT04AJxOgLLoke1",
+  "isArchived": false,
+  "meta": null,
+  "name": "get all work items",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "requestMethod": "POST",
+        "url": "https://dev.azure.com/cliffordcapital/CC%20Integrations/_apis/wit/wiql?api-version=7.1-preview.2",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\n  \"query\": \"SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = 'CC Integrations' AND [System.IterationPath] = 'CC Integrations\\\\Sprint 9'\"\n}\n"
+      },
+      "id": "8a4aeb3d-1f86-4c57-8fe9-a41d1397f294",
+      "name": "Get all work items",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -800,
+        -224
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Hd7B6y96qdjzRWmk",
+          "name": "Azure Devops PAT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ids = $input.first().json.workItems.map(item => item.id);\nreturn [{\n  json: {\n    ids: ids,\n    fields: [\n      \"System.Id\",\n      \"System.Title\",\n      \"System.State\",\n      \"System.WorkItemType\",\n      \"System.IterationPath\",\n      \"Microsoft.VSTS.Scheduling.StoryPoints\"\n    ]\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -224
+      ],
+      "id": "84924806-071f-4c79-9496-bc37010daca4",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "requestMethod": "POST",
+        "url": "https://dev.azure.com/cliffordcapital/CC%20Integrations/_apis/wit/workitemsbatch?api-version=7.1-preview.1",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\n  \"ids\": [{{ $json.ids }}],\n  \"fields\": [\n    \"System.Id\",\n    \"System.Title\",\n    \"System.Description\",\n    \"System.State\",\n    \"System.WorkItemType\",\n    \"System.IterationPath\",\n    \"Microsoft.VSTS.Scheduling.StoryPoints\"\n  ]\n}\n"
+      },
+      "id": "2704f20a-7102-41c4-9b7d-51147fd584cd",
+      "name": "get all work items details",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -352,
+        -224
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Hd7B6y96qdjzRWmk",
+          "name": "Azure Devops PAT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "806b72db-840e-4dc7-ad39-a11414d619d2",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1024,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    output: $input.first().json.value\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -224
+      ],
+      "id": "3da64132-d295-4844-9b4e-6ae59e166017",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Would you recommend this site?'] }}",
+                    "rightValue": "Yes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Yes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1dd9b1f5-6f48-4182-ae04-f47c37e3fa98",
+                    "leftValue": "={{ $json['Would you recommend this site?'] }}",
+                    "rightValue": "No",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -800,
+        0
+      ],
+      "id": "10af813a-8549-4e4f-958b-5c65ab96057d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Thank you for your review!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        0
+      ],
+      "id": "b10394a5-0e31-4bd2-8e28-de99dcdb0545",
+      "name": "Thanks for the review",
+      "webhookId": "bce3f77b-3005-4989-bd61-b9c5ff19e59e"
+    },
+    {
+      "parameters": {
+        "content": "This Switch node determines which branch will execute.\n\nThe switch uses data from a dropdown field with single selection enforced, so only one path will execute.",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "6f4c9d1a-616b-4c74-8080-79ad81452be9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Leave your review below",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        0
+      ],
+      "id": "7b69bdce-7fdb-4232-ad76-7cfe87648874",
+      "name": "If recommended",
+      "webhookId": "f8298b40-1f61-465b-b228-30a659075f30"
+    },
+    {
+      "parameters": {
+        "formTitle": "Form with mutually exclusive branching",
+        "formDescription": "This form contains branches, but only one branch will ever be executed.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Would you recommend this site?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        0
+      ],
+      "id": "1ff337d9-175c-4045-bb10-61e57d373e08",
+      "name": "On form submission1",
+      "webhookId": "d869b846-111d-4f53-96e4-2c4a533d9ed6"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "thanks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        160
+      ],
+      "id": "296ec9ae-fb3f-4f09-8465-f9cf876c09cc",
+      "name": "Form",
+      "webhookId": "669319e8-05fd-42a0-999c-9c0832874184"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-07-22T05:05:55.854Z",
+      "createdAt": "2025-07-22T05:05:55.854Z",
+      "role": "workflow:owner",
+      "workflowId": "YGT04AJxOgLLoke1",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-24T04:27:15.000Z",
+  "versionId": "057beead-5231-420e-9c28-4c9f1bfa5b91"
+}
