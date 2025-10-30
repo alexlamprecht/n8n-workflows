@@ -1,0 +1,505 @@
+{
+  "active": false,
+  "connections": {
+    "Ticker List": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stock Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpret Data": {
+      "main": [
+        [
+          {
+            "node": "Stock Analysis Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stock Data": {
+      "main": [
+        [
+          {
+            "node": "Interpret Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Market Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Market Status": {
+      "main": [
+        [
+          {
+            "node": "Check if Market is open",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Market is open": {
+      "main": [
+        [
+          {
+            "node": "Ticker List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Market is Closed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Summary to User(s)": {
+      "main": [
+        [
+          {
+            "node": "End of Flow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stock Analysis Assistant": {
+      "main": [
+        [
+          {
+            "node": "Send Summary to User(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-16T07:56:13.069Z",
+  "id": "K2OPgQmn9rZJg7QH",
+  "isArchived": false,
+  "meta": null,
+  "name": "Stock Analysis Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"symbols\": \"AAPL,MSFT,NVDA,TSLA,AMZN,GOOGL,META,JPM,XOM,UNH,GME\"\n}\n",
+        "options": {}
+      },
+      "id": "1c6b0987-495b-4d50-9015-41ab75dd9f02",
+      "name": "Ticker List",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1904,
+        336
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "url": "=https://data.alpaca.markets/v2/stocks/bars",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbols",
+              "value": "={{ $json.symbols }}"
+            },
+            {
+              "name": "timeframe",
+              "value": "1Day"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            },
+            {
+              "name": "feed",
+              "value": "iex"
+            },
+            {
+              "name": "=start",
+              "value": "={{ new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "end",
+              "value": "={{ new Date().toISOString().split('T')[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d3656e64-7e73-4d27-8a0a-9158c31bffaa",
+      "name": "Fetch Stock Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2128,
+        336
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import pandas as pd\nimport numpy as np\nimport json\n\nbars_by_symbol = items[0]['json']['bars']\nstocks = []\n\nfor symbol, bars in bars_by_symbol.items():\n    closes = [bar['c'] for bar in bars if 'c' in bar]\n    if len(closes) < 30:\n        continue\n\n    df = pd.DataFrame({'close': closes})\n\n    # RSI(14)\n    delta = df['close'].diff()\n    gain = delta.clip(lower=0)\n    loss = -delta.clip(upper=0)\n    avg_gain = gain.rolling(14).mean()\n    avg_loss = loss.rolling(14).mean()\n    rs = avg_gain / avg_loss\n    df['rsi'] = 100 - (100 / (1 + rs))\n\n    # MACD (12,26,9)\n    ema12 = df['close'].ewm(span=12, adjust=False).mean()\n    ema26 = df['close'].ewm(span=26, adjust=False).mean()\n    df['macd'] = ema12 - ema26\n    df['signal'] = df['macd'].ewm(span=9, adjust=False).mean()\n\n    latest = df.iloc[-1]\n    rsi = latest['rsi']\n    macd = latest['macd']\n    signal = latest['signal']\n\n    status = \"Hold\"\n    if rsi < 30 and macd > signal:\n        status = \"Buy\"\n    elif rsi > 70 and macd < signal:\n        status = \"Sell\"\n\n    stocks.append({\n        \"ticker\": symbol,\n        \"rsi\": round(float(rsi), 2),\n        \"macd\": round(float(macd), 2),\n        \"signal\": round(float(signal), 2),\n        \"status\": status\n    })\n\nreturn [{\n    \"json\": {\n        \"summary\": json.dumps({\n            \"stocks\": stocks\n        }, separators=(',', ':')),\n      \"stocks\": stocks\n    }\n}]\n"
+      },
+      "id": "93bc513f-0d9d-42d3-9ff6-2b29e7f107fc",
+      "name": "Interpret Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2352,
+        336
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "mode": "list",
+          "value": "REDACTED_ASSISTANT_ID",
+          "cachedResultName": "REDACTED_ASSISTANT"
+        },
+        "prompt": "define",
+        "text": "=Here is the technical indicator data as JSON:\n\n{{ $json.summary }}\n\nPulled as of {{ $now }}",
+        "options": {}
+      },
+      "id": "43af56f6-cfc9-4946-9c9e-176d3656a03e",
+      "name": "Stock Analysis Assistant",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2544,
+        336
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "mode": "list",
+          "value": "REDACTED_USER_ID",
+          "cachedResultName": "REDACTED_USER"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "id": "59304007-31d7-4d03-9f94-101cd960fc82",
+      "name": "Send Summary to User(s)",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2928,
+        336
+      ],
+      "webhookId": "57e1eff1-81c1-42f1-b8ee-fb3e40551362",
+      "typeVersion": 2.3
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 30 6-14 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "218ae412-2a0f-4f93-8936-9d88eb82652c",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1232,
+        336
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "acca2d72-d9db-436d-aee8-81a3a359fe85",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_open }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cde6c412-18d2-4bf8-b383-a540a0c275e9",
+      "name": "Check if Market is open",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1664,
+        336
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {},
+      "id": "e59973c1-7f3b-40d1-b98b-7e12ea7c5278",
+      "name": "Market is Closed",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1904,
+        528
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "https://paper-api.alpaca.markets/v2/clock",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {}
+      },
+      "id": "0c992af3-b467-417f-b279-8dc4cb0ee947",
+      "name": "Check Market Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1472,
+        336
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "# 🧠 Stock Analysis Assistant\n\nThis workflow analyzes selected S&P 500 stocks using RSI and MACD indicators, summarizes the insights into plain English, and posts an update to Slack every hour during U.S. market hours (Mon–Fri).",
+        "width": 660
+      },
+      "id": "fd7b6cef-7e5d-4efc-925b-6a7114b49328",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 📅 Schedule Trigger\n\n**Node:** `Schedule Trigger`  \nRuns every hour between 6:30 AM and 2:30 PM (PST), Monday to Friday.  \n**Cron Expression:** `0 30 6-14 * * 1-5`\n\n⏰ Triggers analysis only during U.S. stock market hours.",
+        "height": 700,
+        "color": 7
+      },
+      "id": "03bba0e5-d52a-4c10-901a-a35e5a64ff9b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 🏛️ Market Status Check\n\n**Node:** `Check Market Status`  \nEndpoint: `https://paper-api.alpaca.markets/v2/clock`\n\nChecks if the market is open using Alpaca’s `/clock` endpoint.\n\n**Node:** `Check if Market is open`  \n- ✅ If true → continue  \n- ❌ If false → exit gracefully via the “Market is Closed” NoOp node",
+        "height": 700,
+        "width": 460,
+        "color": 7
+      },
+      "id": "e7244978-7e5a-4016-8aff-2112ec94b174",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1392,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 📈 Ticker Setup\n\n**Node:** `Ticker List`  \nSets the stock symbols to be analyzed.\n\n📌 You can update this list to monitor different stocks.",
+        "height": 540,
+        "width": 220,
+        "color": 4
+      },
+      "id": "00ad57fd-5454-4dc8-9cc3-2a5c1329c5d3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 🔗 Fetch Stock Data\n\n**Node:** `Fetch Stock Data`  \nCalls Alpaca’s `/v2/stocks/bars` endpoint with:\n- `symbols`: from `Ticker List`\n- `timeframe`: `1Day`\n- `limit`: `1000`\n- `feed`: `iex` (avoid SIP permission error)\n- `start`: 100 days ago\n- `end`: today",
+        "height": 540,
+        "width": 220,
+        "color": 4
+      },
+      "id": "3fd91dec-37e9-45f6-b1d6-0b319fa72c9a",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2064,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 🧮 Interpret Data\n\n**Node:** `Interpret Data`  \nPython code calculates:\n- RSI(14)\n- MACD(12,26,9)\n- Decision status: `\"Buy\"`, `\"Hold\"`, or `\"Sell\"`\n\nOutputs:\n- `stocks`: a list of indicator values and status\n- `summary`: JSON string version for GPT",
+        "height": 540,
+        "width": 220,
+        "color": 4
+      },
+      "id": "ed87736b-e0fb-480c-a9f1-4d92cfcd018b",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2288,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 AI Assistant Summary\n\n**Node:** `Stock Analysis Assistant`  \nUses a custom OpenAI assistant to:\n- Group stocks into categories\n- Provide commentary in plain English\n- Teach users simple market behaviors\n\nPrompt includes:\n- Stock JSON (`summary`)\n- Timestamp (`$now`)\n\n📌 Uses Slack-friendly markdown output.",
+        "height": 540,
+        "width": 360,
+        "color": 4
+      },
+      "id": "533242d9-3fc1-4221-856b-8f85948f951a",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2512,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "",
+        "width": 220,
+        "color": 3
+      },
+      "id": "e8affd70-dde4-46e3-9065-f567d5e49556",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "3be433e7-af76-4cf8-8d2c-e6a424ce2205",
+      "name": "End of Flow",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3152,
+        336
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 💬 Post to Slack\n\n**Node:** `Send Summary to User(s)`  \nSends the GPT-generated summary to Slack using:\n```js\n{{ $json.output }}\n```\n⚙️ Configured with the appropriate Slack user or channel.",
+        "height": 540,
+        "width": 220,
+        "color": 4
+      },
+      "id": "e777c3f4-6801-47a0-872b-f47b61f92164",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2864,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 540,
+        "width": 220,
+        "color": 4
+      },
+      "id": "e4debd1f-7bf3-430d-81f5-86bdbd8feecb",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3088,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 AI Assistant Prompt\n\nYou are a financial assistant writing a quick, readable market update for a general audience. Your job is to help people understand how well-known stocks are behaving — even if they aren’t professional traders.\n\nYou’ll be given:\n\nA list of stocks with technical indicators (e.g., momentum data)\nA timestamp (in RFC 3339 or ISO format) for when the data was pulled.\n📌 Your task:\nGroup the stocks into three categories:\n🟢 Buy Watchlist – Stocks showing signs of recovery or upward momentum\n⚪ Neutral Hold – Stocks with steady or unclear direction\n🔴 Caution / Sell – Stocks that appear overbought or may pull back\nFor each stock:\nWrite a short, plain-language insight about what’s happening\nUse familiar terms like “gaining steam,” “cooling off,” or “showing hesitation”\nAvoid technical jargon like RSI or MACD unless context makes it helpful\nAdd a helpful tip or comment for each stock (e.g.,\n“This pattern often signals hesitation” or\n“This dip might attract bargain hunters”)\nFinish with a summary line using the timestamp like this:\nSummary as of October 2, 2025 – Most stocks were stable with one or two worth watching.\n📦 Respond in Slack Markdown Only:\nExample Format:\n\n*📊 Market Summary (as of October 2, 2025)*\n\n🟢 *Buy Watchlist*  \n• TSLA – Recovering after a dip; gaining steam. This type of rebound often attracts early buyers.\n\n⚪ *Neutral Hold*  \n• AAPL – Holding steady. This often means the market is waiting on new developments.  \n• GOOGL – Moving sideways. A sign of consolidation before potential breakout.  \n• MSFT – Little movement. Could be digesting prior gains.  \n• NVDA – Slight back-and-forth. May indicate indecision in the market.\n\n🔴 *Caution / Sell*  \n• None at this time.\n\n_Summary as of October 2, 2025: Most stocks appear steady. TSLA could be one to watch if momentum holds._\n🚫 Do NOT:\nReturn raw JSON\nUse code blocks unless formatting Slack markdown (no YAML or tags)\nUse technical finance language unless simplified",
+        "height": 940,
+        "width": 660,
+        "color": 5
+      },
+      "id": "483237f9-0f7f-4a19-a0e5-588a3f185f9a",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        160
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-16T07:56:13.071Z",
+      "createdAt": "2025-10-16T07:56:13.071Z",
+      "role": "workflow:owner",
+      "workflowId": "K2OPgQmn9rZJg7QH",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-16T07:56:13.069Z",
+  "versionId": "216bf909-70b5-4241-a609-29f08aaaef52"
+}
