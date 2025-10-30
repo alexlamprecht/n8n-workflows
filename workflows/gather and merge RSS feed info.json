@@ -1,0 +1,460 @@
+{
+  "active": false,
+  "connections": {
+    "BBC RSS feed": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlJazeera RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NYT RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "BBC RSS feed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AlJazeera RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "NYT RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-16T07:09:30.307Z",
+  "id": "VUklH5YUXCoYT2fQ",
+  "isArchived": false,
+  "meta": null,
+  "name": "gather and merge RSS feed info",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -496,
+        -128
+      ],
+      "id": "f36be17a-97bb-4fd8-b5cb-ae29918b0cdc",
+      "name": "BBC RSS feed"
+    },
+    {
+      "parameters": {
+        "url": "https://www.aljazeera.com/xml/rss/all.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -496,
+        32
+      ],
+      "id": "64bc2707-d8e3-4220-9a27-314ebac18f2e",
+      "name": "AlJazeera RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -496,
+        192
+      ],
+      "id": "6fd0f555-f093-4bd9-9f1c-41dd9cdad64d",
+      "name": "NYT RSS Read"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b76187ee-c82c-4c91-aff5-69e3f4291c14",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "c3b5a8ba-b727-4738-8596-6d8e9520dbe6",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "4da1fd8c-2edf-4545-9d5a-d943d1873609",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "57557a4f-2f78-48ef-9dde-1c25391fc26d",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        -128
+      ],
+      "id": "c6df2dbe-fdc7-4a51-a054-661ff58ff0a4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b76187ee-c82c-4c91-aff5-69e3f4291c14",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "c3b5a8ba-b727-4738-8596-6d8e9520dbe6",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "4da1fd8c-2edf-4545-9d5a-d943d1873609",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "57557a4f-2f78-48ef-9dde-1c25391fc26d",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        32
+      ],
+      "id": "29a1f861-a61a-43be-88ac-cb20a7528e85",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b76187ee-c82c-4c91-aff5-69e3f4291c14",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "c3b5a8ba-b727-4738-8596-6d8e9520dbe6",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "4da1fd8c-2edf-4545-9d5a-d943d1873609",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "57557a4f-2f78-48ef-9dde-1c25391fc26d",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        192
+      ],
+      "id": "52b9669f-e691-491d-abb6-4410b3bdb616",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        48,
+        48
+      ],
+      "id": "2d435536-cb9d-4eed-9be3-0714b6f3efeb",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -496,
+        368
+      ],
+      "id": "81311e0e-1ff2-44ff-ac8f-ab5e5aaec019",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b76187ee-c82c-4c91-aff5-69e3f4291c14",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "c3b5a8ba-b727-4738-8596-6d8e9520dbe6",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "4da1fd8c-2edf-4545-9d5a-d943d1873609",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "57557a4f-2f78-48ef-9dde-1c25391fc26d",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        368
+      ],
+      "id": "b3d3b6aa-1fb3-44c8-a223-fbbf475abf46",
+      "name": "Edit Fields3"
+    },
+    {
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        80
+      ],
+      "id": "d38b92bf-5b1c-415c-9adf-c29900bd90d3",
+      "name": "No Operation, do nothing",
+      "disabled": false,
+      "parameters": {}
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1db31642-d2a1-4717-b327-65048c766167",
+              "name": "Merge_allItems",
+              "value": "={{ $('Merge').all() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        48
+      ],
+      "id": "da4cc6c3-dc68-49e4-8a47-2a684b91037f",
+      "name": "Return"
+    },
+    {
+      "id": "49dad693-69c4-4788-bf04-611b3858d9ad",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -944,
+        80
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    }
+  ],
+  "pinData": null,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-16T07:09:30.314Z",
+      "createdAt": "2025-10-16T07:09:30.314Z",
+      "role": "workflow:owner",
+      "workflowId": "VUklH5YUXCoYT2fQ",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-16T07:09:30.307Z",
+  "versionId": "925a42b5-7926-4310-8d9b-5ec1aec94154"
+}
