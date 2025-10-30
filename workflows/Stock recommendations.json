@@ -1,0 +1,426 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cash": {
+      "main": [
+        [
+          {
+            "node": "Concatenate price and currency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Call Generate Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Call gather and merge RSS feed info": {
+      "main": [
+        [
+          {
+            "node": "Call Forecasts global news effects on ethical stocks.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Call gather and merge RSS feed info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concatenate price and currency": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Forecasts global news effects on ethical stocks.": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Call Retrieves stock data and return structured output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Retrieves stock data and return structured output": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Call Generate Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-21T03:08:44.811Z",
+  "id": "1T4uQwrmBtHTZ4kf",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Stock recommendations",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1088,
+        64
+      ],
+      "id": "fc549d26-dfb7-4a64-9768-05975231a55d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab4831e5-6707-4a94-a11e-8d82c25b75ea",
+              "name": "cash",
+              "value": "1200",
+              "type": "string"
+            },
+            {
+              "id": "b9eeebd2-4c7a-475e-a5d3-8eae04ba96ac",
+              "name": "currency",
+              "value": "SGD",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -384,
+        -112
+      ],
+      "id": "c58fcf4a-77f9-4d75-9985-5e8281094146",
+      "name": "Cash"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        16,
+        -96
+      ],
+      "id": "54438ec8-40ef-4255-8184-f7714b9dbda7",
+      "name": "Merge1",
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        272,
+        96
+      ],
+      "id": "a9fc5e39-e083-48ac-99a6-0cc018f2d961",
+      "name": "Merge2",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "chatId": "5087769352",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        96
+      ],
+      "id": "cd2633a4-dab8-4a77-ac4c-edbfa080532c",
+      "name": "Send a text message",
+      "webhookId": "2838c90c-1187-4d95-a204-704615940230",
+      "credentials": {
+        "telegramApi": {
+          "id": "QrE3ovFBhTFmMCgX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1152,
+        -176
+      ],
+      "id": "ecc15fff-efb5-4004-b4b8-0086b9d06a57",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VUklH5YUXCoYT2fQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/VUklH5YUXCoYT2fQ",
+          "cachedResultName": "gather and merge RSS feed info"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        112
+      ],
+      "name": "Call gather and merge RSS feed info",
+      "id": "cff66cf7-699c-40ea-a3b5-54473632920b"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        -80
+      ],
+      "id": "0312832c-2f7d-4a4b-8db0-ae611e4d4bd8",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      output:{cash: $input.first().json.cash + \" \" + $input.first().json.currency}\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -112
+      ],
+      "id": "0a337e3f-e3aa-4cf1-86f2-b73283d7d6fb",
+      "name": "Concatenate price and currency"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "uHCQZQtMeX9pgE41",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/uHCQZQtMeX9pgE41",
+          "cachedResultName": "Forecasts global news effects on ethical stocks."
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Merge_allItems_map_firstItem": "={{ $('Call gather and merge RSS feed info').first().json.Merge_allItems.map }}"
+          },
+          "matchingColumns": [
+            "Merge_allItems_map_firstItem"
+          ],
+          "schema": [
+            {
+              "id": "Merge_allItems_map_firstItem",
+              "displayName": "Merge_allItems_map_firstItem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        112
+      ],
+      "name": "Call Forecasts global news effects on ethical stocks.",
+      "id": "034ede09-f773-465b-b378-74bf2359e49b"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "6CcwJ9IXHC2qreVG",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "output_symbols": "={{ $json.output_symbols }}"
+          },
+          "matchingColumns": [
+            "output_symbols"
+          ],
+          "schema": [
+            {
+              "id": "output_symbols",
+              "displayName": "output_symbols",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        112
+      ],
+      "name": "Call Retrieves stock data and return structured output",
+      "id": "36e35cee-4917-40a1-886e-8a44889f3f51"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YAbsXFXy6odamkwu",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        96
+      ],
+      "name": "Call Generate Recommendation",
+      "id": "339ff2bf-f47e-4e8c-9f68-bbabd4560522"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-07-21T03:08:44.813Z",
+      "createdAt": "2025-07-21T03:08:44.813Z",
+      "role": "workflow:owner",
+      "workflowId": "1T4uQwrmBtHTZ4kf",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-21T01:58:56.000Z",
+  "versionId": "eb5a614c-6351-4660-a85e-40424438b1d8"
+}
