@@ -1,0 +1,240 @@
+{
+  "active": false,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Call get all work items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call get all work items": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Set Chat output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-22T04:53:26.979Z",
+  "id": "MEtZapObXOiws9UA",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Generate weekly report from Azure board",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -208
+      ],
+      "id": "617f90cc-b16b-4f63-9c2d-1257cbff9748",
+      "name": "When chat message received",
+      "webhookId": "24a9645b-841e-4f6e-9793-9a0d814d2753"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YGT04AJxOgLLoke1",
+          "mode": "list",
+          "cachedResultName": "get all work items"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        -112
+      ],
+      "name": "Call get all work items",
+      "id": "e68256e1-0e51-4dc5-8f95-8923a67e8056"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Here is a message from a user:\n \"{{ $json.output.message }}\"\n\nplease perform the user request using this data (the data comes from the Azure Devops API and has all work items listed):\n\n{{ JSON.stringify($json.output.values) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        496,
+        -208
+      ],
+      "id": "129bb2b7-cdb3-409e-b8f3-b0ae235b2b61",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "A9mk8XXdg1omQECb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    output: {\n      message: $input.first().json.chatInput,\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -304
+      ],
+      "id": "02a31e5e-5f65-4e44-9828-1a5f2da0a149",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    output: {\n      values: $input.first().json.value\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -112
+      ],
+      "id": "0d73c818-8032-437b-812d-ca33cce58248",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        272,
+        -208
+      ],
+      "id": "9e93d16b-eaba-4ea9-9f36-f92a22502ceb",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2db2d0d5-d9bd-4d00-914f-7f0d11397a44",
+              "name": "text",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        -208
+      ],
+      "id": "1c56bc51-48f4-4ba3-b685-bd8c59ab1cf3",
+      "name": "Set Chat output"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-07-22T04:53:26.981Z",
+      "createdAt": "2025-07-22T04:53:26.981Z",
+      "role": "workflow:owner",
+      "workflowId": "MEtZapObXOiws9UA",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-24T04:20:06.000Z",
+  "versionId": "3433a87f-0e43-44f4-b718-ed569af64588"
+}
