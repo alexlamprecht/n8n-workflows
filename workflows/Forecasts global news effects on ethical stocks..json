@@ -1,0 +1,262 @@
+{
+  "active": false,
+  "connections": {
+    "Generate timeframe-based implication hypotheses.": {
+      "main": [
+        [
+          {
+            "node": "Generates ethical stock impact predictions.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generates ethical stock impact predictions.",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generates ethical stock impact predictions.",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate timeframe-based implication hypotheses.",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate timeframe-based implication hypotheses.",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Generate timeframe-based implication hypotheses.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generates ethical stock impact predictions.": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-16T07:12:04.830Z",
+  "id": "uHCQZQtMeX9pgE41",
+  "isArchived": false,
+  "meta": null,
+  "name": "Forecasts global news effects on ethical stocks.",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on the information below about possible implications of recent news on the future, please make educated guesses about the expected impact on stock prices.\n\nI expect a list of 50 US stocks or unit trusts or index funds that will be impacted by the news.\n\nGive me a list with the following exact fields for each entry:\n\n- Name  \n- Symbol  \n- Expected Change 1 Day  \n- Certainty 1 Day  \n- Expected Change 1 Week  \n- Certainty 1 Week  \n- Expected Change 1 Month  \n- Certainty 1 Month  \n- Reason\n\nMake sure all entries have all fields filled in.\n\nAt the end, provide a string called \"symbols\" which is a comma-separated string of all the Symbol values, in order.\n\nHere’s the source news data as context:\n{{ JSON.stringify($json.output) }}\n\n\nHere are some other consideratons:\nMy morality forbids me to invest in oil and gas companies and in TSLA, so don't recommend such stocks. Also don't recommend penny stocks or meme stocks.\nArms and munition is ok.\nIf it's sustainable it would be great too.",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        832,
+        80
+      ],
+      "id": "735321c2-a90d-4c49-938c-8eb37923d6b7",
+      "name": "Generates ethical stock impact predictions.",
+      "executeOnce": true,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Hello, please use this table of recent news from various RSS feeds and come up with some hypothesis of what implications those news would have for the following timeframes: 1 day, 1 week, 1 month, 1 year, 5 years.\n\nPlease focus mainly on the implication on business, global politics, changes in industry and stock prices.\n\nPlease give me a table for each time frame with the following columns:\n\npossible implication, certainty(in %)\n\nhere is the input:\n\n{{ JSON.stringify($('Start').first().json.Merge_allItems_map_firstItem(i=>i.json))}}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        416,
+        80
+      ],
+      "id": "2a345397-222d-499b-a4d1-9122e40069d4",
+      "name": "Generate timeframe-based implication hypotheses.",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"data\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"Name\": { \"type\": \"string\" },\n          \"Symbol\": { \"type\": \"string\" },\n          \"Expected Change 1 Day\": { \"type\": \"string\" },\n          \"Certainty 1 Day\": { \"type\": \"string\" },\n          \"Expected Change 1 Week\": { \"type\": \"string\" },\n          \"Certainty 1 Week\": { \"type\": \"string\" },\n          \"Expected Change 1 Month\": { \"type\": \"string\" },\n          \"Certainty 1 Month\": { \"type\": \"string\" },\n          \"Reason\": { \"type\": \"string\" }\n        },\n        \"required\": [\n          \"Name\",\n          \"Symbol\",\n          \"Expected Change 1 Day\",\n          \"Certainty 1 Day\",\n          \"Expected Change 1 Week\",\n          \"Certainty 1 Week\",\n          \"Expected Change 1 Month\",\n          \"Certainty 1 Month\",\n          \"Reason\"\n        ]\n      }\n    },\n    \"symbols\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"symbol\":\"string\"\n      },\n      \"description\": \"list of all Symbol values in the data array\"\n    \n    }\n  },\n  \"required\": [\"data\", \"symbols\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        976,
+        304
+      ],
+      "id": "369b53f2-0421-431c-9fdd-a60fcdf79ec2",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-nano"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        304
+      ],
+      "id": "b3130c5a-ecaf-44b0-a1f4-0bed331e1209",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "A9mk8XXdg1omQECb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"timeframes\":\n  { \"1 day\":\n    [\n    {\n    \t\"possible implication\": \"This could mean x or y\",\n    \t\"certainty\": \"value in %\"\n    }\n  ],\n    \"1 week\":[\n       {\n    \t\"possible implication\": \"This could mean x or y\",\n    \t\"certainty\": \"value in %\"\n    }  \n    ],\n     \"1 month\":[\n       {\n    \t\"possible implication\": \"This could mean x or y\",\n    \t\"certainty\": \"value in %\"\n    }  \n    ],\n     \"1 year\":[\n       {\n    \t\"possible implication\": \"This could mean x or y\",\n    \t\"certainty\": \"value in %\"\n    }  \n    ],\n     \"5 years\":[\n       {\n    \t\"possible implication\": \"This could mean x or y\",\n    \t\"certainty\": \"value in %\"\n    }  \n    ]\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        304
+      ],
+      "id": "d3181f5a-e5c6-456f-8846-a772d2cc6f96",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        304
+      ],
+      "id": "08bfb86a-5054-4297-959f-074216237132",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "A9mk8XXdg1omQECb",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c06957a-5931-44fe-a52b-5dea8840fbea",
+              "name": "output_symbols",
+              "value": "={{ $json.output.symbols }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        80
+      ],
+      "id": "964780b2-2274-49d9-b4ab-40d8912ffa12",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Merge_allItems_map_firstItem",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "de868e89-c670-4bfd-81db-4549748103bd",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        208,
+        80
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-16T07:12:04.831Z",
+      "createdAt": "2025-10-16T07:12:04.831Z",
+      "role": "workflow:owner",
+      "workflowId": "uHCQZQtMeX9pgE41",
+      "projectId": "XE0SNvkRwFuZabQN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-16T07:49:28.000Z",
+  "versionId": "957b60da-aa9e-485a-b0bc-d3292d595392"
+}
