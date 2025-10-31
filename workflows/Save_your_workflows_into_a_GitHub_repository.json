@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "connections": {
     "Config": {
       "main": [
@@ -283,8 +283,8 @@
       "typeVersion": 1,
       "credentials": {
         "githubApi": {
-          "id": "U92dWPbje9IyqeAi",
-          "name": "Github CC"
+          "id": "WCCgeF6VPwxdz3IV",
+          "name": "Github Private"
         }
       }
     },
@@ -317,8 +317,8 @@
       "typeVersion": 1,
       "credentials": {
         "githubApi": {
-          "id": "U92dWPbje9IyqeAi",
-          "name": "Github CC"
+          "id": "WCCgeF6VPwxdz3IV",
+          "name": "Github Private"
         }
       }
     },
@@ -331,7 +331,6 @@
             "caseSensitive": true,
             "typeValidation": "strict"
           },
-          "combinator": "and",
           "conditions": [
             {
               "id": "bb64ed2c-5193-4b8f-a9e8-55cb83ea244c",
@@ -342,7 +341,8 @@
               "leftValue": "={{ $json.updatedAt }}",
               "rightValue": "={{ $now.minus(1, 'days') }}"
             }
-          ]
+          ],
+          "combinator": "and"
         },
         "options": {}
       },
@@ -585,8 +585,8 @@
       "alwaysOutputData": true,
       "credentials": {
         "githubApi": {
-          "id": "U92dWPbje9IyqeAi",
-          "name": "Github CC"
+          "id": "WCCgeF6VPwxdz3IV",
+          "name": "Github Private"
         }
       },
       "onError": "continueRegularOutput"
@@ -712,7 +712,9 @@
   ],
   "pinData": {},
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
   "shared": [
     {
@@ -723,9 +725,13 @@
       "projectId": "XE0SNvkRwFuZabQN"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
   "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2025-10-30T07:47:52.000Z",
-  "versionId": "af406ba6-88b7-4f91-b93f-f1955a43549a"
+  "triggerCount": 1,
+  "updatedAt": "2025-10-30T07:52:38.000Z",
+  "versionId": "c2af3157-1e80-49d1-a23e-4185f68a7e18"
 }
